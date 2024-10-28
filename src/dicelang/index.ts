@@ -1,1 +1,1 @@
-export { diceGrammar } from "./dice";
+export { diceGrammar, diceSemantics } from "./dice";
