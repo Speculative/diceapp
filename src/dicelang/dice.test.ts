@@ -4,18 +4,23 @@ import { test as fctest, fc } from "@fast-check/vitest";
 
 const MAX_DICE_COUNT = 1000;
 
-const assertEvalRange = (expr: string, min: number, max: number) => {
+const assertEvalRange = (
+  expr: string,
+  min: number,
+  max: number,
+  overrides = {}
+) => {
   const match = diceGrammar.match(expr);
   expect(match.succeeded()).toBeTruthy();
-  const result = diceSemantics(match).eval();
+  const result = diceSemantics(match).eval(overrides);
   expect(result).toBeGreaterThanOrEqual(min);
   expect(result).toBeLessThanOrEqual(max);
 };
 
-const assertEvalEqual = (expr: string, expected: number) => {
+const assertEvalEqual = (expr: string, expected: number, overrides = {}) => {
   const match = diceGrammar.match(expr);
   expect(match.succeeded()).toBeTruthy();
-  const result = diceSemantics(match).eval();
+  const result = diceSemantics(match).eval(overrides);
   expect(result).toBe(expected);
 };
 
@@ -34,14 +39,12 @@ describe("basic math", () => {
     ["2 ^ 2 + 1", 5],
     ["2 ^ (2 + 1)", 8],
     ["(2 + 1) ^ 2", 9],
+    ["(2 + 1) * (3 + 1)", 12],
   ] as const;
 
   for (const [input, expected] of MATH_TESTS) {
     test(input, () => {
-      const match = diceGrammar.match(input);
-      expect(match.succeeded()).toBeTruthy();
-      const result = diceSemantics(match).eval();
-      expect(result).toBe(expected);
+      assertEvalEqual(input, expected);
     });
   }
 });
@@ -130,5 +133,14 @@ describe("dice semantics", () => {
         dCount,
         dCount * (dSize1 + dSize2)
       )
+  );
+});
+
+describe("overridden dice semantics", () => {
+  fctest.prop([fc.nat(), fc.stringMatching(/^[a-zA-Z_]+$/), fc.nat()])(
+    "should override number",
+    (num1, label, num2) => {
+      assertEvalEqual(`${num1}:${label}`, num2, { [label]: num2 });
+    }
   );
 });

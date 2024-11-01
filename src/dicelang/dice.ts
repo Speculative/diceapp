@@ -20,23 +20,44 @@ DiceLang {
     | "(" ASExpr ")" -- parens
     | Number
   Roll = ParenExpr "d" ParenExpr
-  Number = "-"? digit+
+  Number = "-"? digit+ (":" ident)?
+  ident = (letter | "_")+
 }
 `);
 
 export const diceSemantics = diceGrammar
   .createSemantics()
-  .addOperation("eval", {
-    ASExpr_add: (num1, _, num2) => num1.eval() + num2.eval(),
-    ASExpr_sub: (num1, _, num2) => Math.max(num1.eval() - num2.eval(), 0), // TODO: negatives should be zeroed only at the top level?
-    MDExpr_mul: (num1, _, num2) => num1.eval() * num2.eval(),
-    MDExpr_div: (num1, _, num2) => Math.floor(num1.eval() / num2.eval()),
-    ExpExpr_exp: (num1, _, num2) => Math.pow(num1.eval(), num2.eval()),
-    ParenExpr_parens: (_, num, __) => num.eval(),
+  .addOperation("eval(overrides)", {
+    ASExpr_add(num1, _, num2) {
+      return num1.eval(this.args.overrides) + num2.eval(this.args.overrides);
+    },
+    ASExpr_sub(num1, _, num2) {
+      return Math.max(
+        num1.eval(this.args.overrides) - num2.eval(this.args.overrides),
+        0
+      );
+    }, // TODO: negatives should be zeroed only at the top level?
+    MDExpr_mul(num1, _, num2) {
+      return num1.eval(this.args.overrides) * num2.eval(this.args.overrides);
+    },
+    MDExpr_div(num1, _, num2) {
+      return Math.floor(
+        num1.eval(this.args.overrides) / num2.eval(this.args.overrides)
+      );
+    },
+    ExpExpr_exp(num1, _, num2) {
+      return Math.pow(
+        num1.eval(this.args.overrides),
+        num2.eval(this.args.overrides)
+      );
+    },
+    ParenExpr_parens(_, num, __) {
+      return num.eval(this.args.overrides);
+    },
 
-    Roll: (num1, _, num2) => {
-      const dCount = Math.max(num1.eval(), 0);
-      const dSize = Math.max(num2.eval(), 0);
+    Roll(num1, _, num2) {
+      const dCount = Math.max(num1.eval(this.args.overrides), 0);
+      const dSize = Math.max(num2.eval(this.args.overrides), 0);
 
       if (dSize === 0) {
         return 0;
@@ -45,7 +66,14 @@ export const diceSemantics = diceGrammar
       return sum(range(0, dCount).map(() => randomInteger(1, dSize)));
     },
 
-    Number: (sign, digits) => {
+    Number(sign, digits, _, label) {
+      const labelName = label.child(0)?.sourceString;
+      if (
+        labelName?.length > 0 &&
+        this.args.overrides.hasOwnProperty(labelName)
+      ) {
+        return this.args.overrides[labelName];
+      }
       return parseInt(sign.sourceString + digits.sourceString);
     },
   });
