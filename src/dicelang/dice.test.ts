@@ -1,6 +1,7 @@
-import { expect, test, describe, assert } from "vitest";
-import { diceGrammar, diceSemantics } from "./dice";
-import { test as fctest, fc } from "@fast-check/vitest";
+import { fc, test as fctest } from "@fast-check/vitest";
+import { assert, describe, expect, test } from "vitest";
+
+import { combineRanges, diceGrammar, diceSemantics } from "./dice";
 
 const MAX_DICE_COUNT = 1000;
 
@@ -139,8 +140,70 @@ describe("dice semantics", () => {
 describe("overridden dice semantics", () => {
   fctest.prop([fc.nat(), fc.stringMatching(/^[a-zA-Z_]+$/), fc.nat()])(
     "should override number",
-    (num1, label, num2) => {
-      assertEvalEqual(`${num1}:${label}`, num2, { [label]: num2 });
+    (X, label, O) => {
+      assertEvalEqual(`${X}:${label}`, O, { [label]: O });
     }
   );
+
+  fctest.prop([
+    fc.nat(),
+    fc.stringMatching(/^[a-zA-Z_]+$/),
+    fc.nat(),
+    fc.nat(),
+  ])("should override in expression X:label + Y", (X, label, O, Y) => {
+    assertEvalEqual(`${X}:${label} + ${Y}`, O + Y, { [label]: O });
+  });
+
+  fctest.prop([
+    fc.nat(),
+    fc.stringMatching(/^[a-zA-Z_]+$/),
+    fc.nat(),
+    fc.nat(),
+  ])("should override in expression Y + X:label", (X, label, O, Y) => {
+    assertEvalEqual(`${Y} + ${X}:${label}`, Y + O, { [label]: O });
+  });
+});
+
+describe("combineRanges", () => {
+  test("combines two strings", () => {
+    const result = combineRanges(["a"], ["b"]);
+    expect(result).toEqual(["ab"]);
+  });
+
+  test("ignores second argument empty", () => {
+    const result = combineRanges(["a"], []);
+    expect(result).toEqual(["a"]);
+  });
+
+  test("ignores first argument empty", () => {
+    const result = combineRanges([], ["b"]);
+    expect(result).toEqual(["b"]);
+  });
+
+  test("does not combine left label with right string", () => {
+    const result = combineRanges(
+      ["a", { type: "label", name: "b", value: 1 }],
+      ["c"]
+    );
+    expect(result).toEqual(["a", { type: "label", name: "b", value: 1 }, "c"]);
+  });
+
+  test("does not combine right label with left string", () => {
+    const result = combineRanges(
+      ["a"],
+      [{ type: "label", name: "b", value: 1 }, "c"]
+    );
+    expect(result).toEqual(["a", { type: "label", name: "b", value: 1 }, "c"]);
+  });
+
+  test("does not combine left label with right label", () => {
+    const result = combineRanges(
+      [{ type: "label", name: "a", value: 1 }],
+      [{ type: "label", name: "b", value: 1 }]
+    );
+    expect(result).toEqual([
+      { type: "label", name: "a", value: 1 },
+      { type: "label", name: "b", value: 1 },
+    ]);
+  });
 });

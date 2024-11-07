@@ -1,1 +1,1 @@
-export { diceGrammar, diceSemantics } from "./dice";
+export { diceGrammar, diceSemantics, type DescriptionNode } from "./dice";
