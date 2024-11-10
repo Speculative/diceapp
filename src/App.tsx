@@ -4,7 +4,7 @@ import { DiceLangEditor } from "./diceapp/DiceLangEditor";
 import { DiceViz } from "./diceviz/DiceViz";
 
 function App() {
-  const [diceProgSrc, setDiceProgSrc] = useState("1:num d20:die+5:mod");
+  const [diceProgSrc, setDiceProgSrc] = useState("2:num d20:die+5:mod");
   const [overrides, setOverrides] = useState<{ [label: string]: number }>({});
 
   return (
