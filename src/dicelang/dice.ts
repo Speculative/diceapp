@@ -81,31 +81,31 @@ export const diceSemantics = diceGrammar
     ASExpr_add(num1, _, num2) {
       return combineRanges(
         num1.toDescription(),
-        combineRanges(["+"], num2.toDescription())
+        combineRanges([" + "], num2.toDescription())
       );
     },
     ASExpr_sub(num1, _, num2) {
       return combineRanges(
         num1.toDescription(),
-        combineRanges(["-"], num2.toDescription())
+        combineRanges([" - "], num2.toDescription())
       );
     },
     MDExpr_mul(num1, _, num2) {
       return combineRanges(
         num1.toDescription(),
-        combineRanges(["*"], num2.toDescription())
+        combineRanges([" * "], num2.toDescription())
       );
     },
     MDExpr_div(num1, _, num2) {
       return combineRanges(
         num1.toDescription(),
-        combineRanges(["/"], num2.toDescription())
+        combineRanges([" / "], num2.toDescription())
       );
     },
     ExpExpr_exp(num1, _, num2) {
       return combineRanges(
         num1.toDescription(),
-        combineRanges(["^"], num2.toDescription())
+        combineRanges([" ^ "], num2.toDescription())
       );
     },
     ParenExpr_parens(_, num, __) {
