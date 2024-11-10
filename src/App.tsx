@@ -1,15 +1,24 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 
 import { DiceLangEditor } from "./diceapp/DiceLangEditor";
-
-import styles from "./App.module.css";
+import { DiceViz } from "./diceviz/DiceViz";
 
 function App() {
-  const [count, setCount] = useState(0);
+  const [diceProgSrc, setDiceProgSrc] = useState("1:num d20:die+5:mod");
+  const [overrides, setOverrides] = useState<{ [label: string]: number }>({});
 
   return (
     <>
-      <DiceLangEditor />
+      <DiceLangEditor
+        progSrc={diceProgSrc}
+        overrides={overrides}
+        onUpdateProgram={(prog, overrides) => {
+          console.log(prog, overrides);
+          setDiceProgSrc(prog);
+          setOverrides(overrides);
+        }}
+      />
+      <DiceViz progSrc={diceProgSrc} overrides={overrides} />
     </>
   );
 }

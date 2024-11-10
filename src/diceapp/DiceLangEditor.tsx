@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import classNames from "classnames";
 
@@ -6,11 +6,19 @@ import { DescriptionNode, diceGrammar, diceSemantics } from "../dicelang";
 
 import * as styles from "./DiceLangEditor.module.css";
 
-export const DiceLangEditor = () => {
-  const [diceProgSrc, setDiceProgSrc] = useState("1:num d20:die+5:mod");
-  const [overrides, setOverrides] = useState<{ [key: string]: number }>({});
-
-  const diceProgResult = diceGrammar.match(diceProgSrc);
+export const DiceLangEditor = ({
+  progSrc: progSrc,
+  overrides,
+  onUpdateProgram,
+}: {
+  progSrc: string;
+  overrides: { [label: string]: number };
+  onUpdateProgram: (
+    prog: string,
+    overrides: { [label: string]: number }
+  ) => void;
+}) => {
+  const diceProgResult = diceGrammar.match(progSrc);
   const diceProgDescription: DescriptionNode[] | null =
     diceProgResult.succeeded()
       ? diceSemantics(diceProgResult).toDescription()
@@ -19,8 +27,8 @@ export const DiceLangEditor = () => {
   return (
     <div>
       <textarea
-        value={diceProgSrc}
-        onChange={(e) => setDiceProgSrc(e.target.value)}
+        value={progSrc}
+        onChange={(e) => onUpdateProgram(e.target.value, overrides)}
         style={{ width: "100%", height: "100%" }}
       />
       <div className={styles.description}>
@@ -31,8 +39,7 @@ export const DiceLangEditor = () => {
               desc={desc}
               overrides={overrides}
               onOverrideChange={(name, value) => {
-                console.log(name, value);
-                setOverrides({
+                onUpdateProgram(progSrc, {
                   ...overrides,
                   [name]: value,
                 });
@@ -101,16 +108,18 @@ const DescriptionOverride = ({
         // const dragStartX = event.clientX;
         const dragStartValue = overrides[desc.name] || desc.value;
         let currentDragDistance = 0;
+        let currentOverride = dragStartValue;
 
         const handleMouseMove = (event: MouseEvent) => {
           currentDragDistance += event.movementX;
-          onOverrideChange(
-            desc.name,
-            Math.max(
-              dragStartValue + Math.floor(currentDragDistance / DRAG_SCALE),
-              0
-            )
+          const newOverride = Math.max(
+            dragStartValue + Math.floor(currentDragDistance / DRAG_SCALE),
+            0
           );
+          if (newOverride !== currentOverride) {
+            onOverrideChange(desc.name, newOverride);
+            currentOverride = newOverride;
+          }
           //   const diff = event.clientX - dragStartX;
           //   onOverrideChange(
           //     desc.name,
