@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useState } from "react";
 
 import { DiceLangEditor } from "./diceapp/DiceLangEditor";
 import { DiceViz } from "./diceviz/DiceViz";
@@ -13,7 +13,6 @@ function App() {
         progSrc={diceProgSrc}
         overrides={overrides}
         onUpdateProgram={(prog, overrides) => {
-          console.log(prog, overrides);
           setDiceProgSrc(prog);
           setOverrides(overrides);
         }}

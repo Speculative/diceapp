@@ -1,10 +1,10 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 import classNames from "classnames";
 
 import { DescriptionNode, diceGrammar, diceSemantics } from "../dicelang";
 
-import * as styles from "./DiceLangEditor.module.css";
+import styles from "./DiceLangEditor.module.css";
 
 export const DiceLangEditor = ({
   progSrc: progSrc,
@@ -99,13 +99,12 @@ const DescriptionOverride = ({
         [styles.overrideControl]: true,
         [styles.dragging]: dragging,
       })}
-      onMouseDown={async (event) => {
+      onMouseDown={async () => {
         await document.body.requestPointerLock();
 
         setDragging(true);
         document.body.classList.add(styles.overrideDragging);
 
-        // const dragStartX = event.clientX;
         const dragStartValue = overrides[desc.name] || desc.value;
         let currentDragDistance = 0;
         let currentOverride = dragStartValue;
@@ -120,11 +119,6 @@ const DescriptionOverride = ({
             onOverrideChange(desc.name, newOverride);
             currentOverride = newOverride;
           }
-          //   const diff = event.clientX - dragStartX;
-          //   onOverrideChange(
-          //     desc.name,
-          //     dragStartValue + Math.floor(diff / DRAG_SCALE)
-          //   );
         };
 
         document.addEventListener("mousemove", handleMouseMove);

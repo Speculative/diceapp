@@ -1,5 +1,5 @@
 import { fc, test as fctest } from "@fast-check/vitest";
-import { assert, describe, expect, test } from "vitest";
+import { describe, expect, test } from "vitest";
 
 import { combineRanges, diceGrammar, diceSemantics } from "./dice";
 

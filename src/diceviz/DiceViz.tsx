@@ -73,15 +73,12 @@ export const DiceViz = ({
 };
 
 const BarTooltip = <TValue extends ValueType, TName extends NameType>({
-  label,
   payload,
 }: TooltipProps<TValue, TName>) => {
   if (!payload || payload.length === 0) {
     return null;
   }
-  const { cdf, pdf, count, result } = payload[0]
-    .payload as unknown as TooltipPayload;
-  console.log(cdf, pdf, payload);
+  const { cdf, pdf, result } = payload[0].payload as unknown as TooltipPayload;
   return (
     <div className={styles.barTooltip}>
       <div>

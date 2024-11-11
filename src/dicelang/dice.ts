@@ -1,5 +1,5 @@
 import * as ohm from "ohm-js";
-import { randomInteger, range, split, sum } from "remeda";
+import { randomInteger, range, sum } from "remeda";
 
 export const diceGrammar = ohm.grammar(String.raw`
 DiceLang {
@@ -68,10 +68,7 @@ export const diceSemantics = diceGrammar
 
     Number(sign, digits, _, label) {
       const labelName = label.child(0)?.sourceString;
-      if (
-        labelName?.length > 0 &&
-        this.args.overrides.hasOwnProperty(labelName)
-      ) {
+      if (labelName?.length > 0 && labelName in this.args.overrides) {
         return this.args.overrides[labelName];
       }
       return parseInt(sign.sourceString + digits.sourceString);

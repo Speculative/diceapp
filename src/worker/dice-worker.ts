@@ -9,7 +9,7 @@ export const calculateDistribtion = async (
   if (!match.succeeded()) {
     throw new Error(match.message);
   }
-  let results: { [result: number]: number } = {};
+  const results: { [result: number]: number } = {};
   for (let i = 0; i < trials; i++) {
     const result = diceSemantics(match).eval(overrides);
     results[result] = (results[result] || 0) + 1;

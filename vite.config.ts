@@ -4,6 +4,10 @@ import { comlink } from "vite-plugin-comlink";
 
 // https://vite.dev/config/
 export default defineConfig({
+  build: {
+    outDir: "docs",
+  },
+  base: "/diceapp/",
   plugins: [comlink(), react()],
   worker: {
     plugins: () => [comlink()],
